@@ -1,0 +1,24 @@
+{
+  "name": "test-waalaxy",
+  "version": "1.0.0",
+  "description": "Test pour waalaxy 24/05/2023",
+  "main": "index.ts",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watchAll",
+    "test:coverage": "jest --coverage",
+    "start": "ts-node src/index.ts"
+  },
+  "author": "Ramos Bryan",
+  "license": "ISC",
+  "dependencies": {
+    "jest": "^29.5.0",
+    "node-cron": "^3.0.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.1",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1"
+  }
+}
