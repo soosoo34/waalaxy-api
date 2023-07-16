@@ -1,8 +1,6 @@
-// src/features/user/userModel.ts
 import {ActionQueue} from '../action-queue/action-queue-model';
 import {Action} from "../action/action-model";
 
-let cron = require('node-cron');
 const {v4: uuidv4} = require('uuid');
 
 export class User {
@@ -12,14 +10,20 @@ export class User {
     lastCalculation: Date = new Date();
 
 
-    constructor() {
+    constructor(props?: { id: string, queue: ActionQueue, actions: Action[], lastCalculation: Date }) {
+        if (props) {
+            this.id = props.id;
+            this.queue = props.queue;
+            this.actions = props.actions;
+            this.lastCalculation = props.lastCalculation;
+            return;
+        }
         this.id = uuidv4();
         this.queue = new ActionQueue(this.id);
     }
 
 
     addActionToActions(type: string, maxCredits: number) {
-        // check if action already exists
         const action = this.actions.find(action => action.type === type);
         if (action) return;
         this.actions.push(new Action(type, maxCredits));
@@ -27,7 +31,7 @@ export class User {
     }
 
 
-    getCredit(action: Action) {
+    payAction(action: Action) {
         if (!this.actions) {
             throw new Error('Actions is undefined');
         }

@@ -1,43 +1,20 @@
-import {UserRepository} from "./features/repositories/user-repository";
-import {User} from "./features/entities/user/user-model";
-import {ProcessActionCommand} from "./features/commands/process-action/process-action-command";
-import {AddActionCommand} from "./features/commands/add-action/add-action-command";
-import {RecalculateCreditsCommand} from "./features/commands/recalculate-credit/recalculate-credit-command";
-const cron = require('node-cron');
+import express, {Express} from 'express';
+import {setupRoutes} from "./features/linkedin-bot/adapters/primary/controllers/user.controller";
+import cors from 'cors';
+import {DemoInMemoryUserRepository} from "./features/linkedin-bot/adapters/secondary/repositories/demo-in-memory-user-repository";
+import {setupCron} from "./features/linkedin-bot/adapters/primary/controllers/user.cron";
 
-const userRepository = new UserRepository();
-const johnDoee = new User();
-userRepository.feed(johnDoee);
-const users = userRepository.getUserById(johnDoee.id);
-const addAction: AddActionCommand = new AddActionCommand(userRepository);
-const processAction: ProcessActionCommand = new ProcessActionCommand(userRepository);
-const recalculateCreditsCommand: RecalculateCreditsCommand = new RecalculateCreditsCommand(userRepository);
+const app: Express = express();
+const userRepository: DemoInMemoryUserRepository = new DemoInMemoryUserRepository();
 
-addAction.execute(johnDoee.id, 'visite' , 100);
-addAction.execute(johnDoee.id, 'visite' , 100);
-addAction.execute(johnDoee.id, 'Friend request' , 50);
-addAction.execute(johnDoee.id, 'Friend request' , 50);
-addAction.execute(johnDoee.id, 'Friend request' , 50);
-addAction.execute(johnDoee.id, 'Friend request' , 50);
-addAction.execute(johnDoee.id, 'Friend request' , 50);
-addAction.execute(johnDoee.id, 'Send mail' , 20);
-addAction.execute(johnDoee.id, 'Send mail' , 20);
-addAction.execute(johnDoee.id, 'visite' , 100);
-addAction.execute(johnDoee.id, 'visite' , 100);
+app.use(express.json());
+app.use(cors());
 
-function startCronJobs(user: User) {
-    console.log('start cron jobs')
-    cron.schedule('*/2 * * * *', () => {
-        processAction.execute(user.id, user.queue.actions[0]);
-        recalculateCreditsCommand.execute(user.id);
-        console.log(user.queue.actions.length);
-        // for each action in the queue, console log the type
-        user.queue.actions.forEach(action => {
-            console.log(action.type);
-        });
-    });
-}
+setupRoutes(app, userRepository);
+setupCron(userRepository);
 
-startCronJobs(johnDoee);
 
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
+});
 
